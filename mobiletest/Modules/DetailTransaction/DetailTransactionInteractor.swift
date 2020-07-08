@@ -9,6 +9,7 @@
 //              * https://github.com/arimunandar
 
 import UIKit
+import Alamofire
 
 protocol IDetailTransactionInteractor: class {
 	var parameters: [String: Any]? { get set }
@@ -46,7 +47,7 @@ class DetailTransactionInteractor: IDetailTransactionInteractor, DetailTransacti
         }
     }
     
-    func onError(message: String) {
+    func onError(message: String, error: HTTPURLResponse?) {
         presenter!.showErrorMessage(message: message)
     }
 }

@@ -19,7 +19,7 @@ protocol IDetailTransactionManager: class {
 
 protocol DetailTransactionManagerCallback {
     func onSuccess(response : [String:Any])
-    func onError(message : String)
+    func onError(message : String, error:HTTPURLResponse?)
 }
 
 class DetailTransactionManager: IDetailTransactionManager {
@@ -40,12 +40,12 @@ class DetailTransactionManager: IDetailTransactionManager {
                             print(error)
                         }
                     case .failure(let error):
-                        callback.onError(message:"Error en el sistema. Intente más tarde")
+                        callback.onError(message:"Error en el sistema. Intente más tarde", error: responseData.response)
                 }
 
             }
         }else{
-            callback.onError(message:"Error en el sistema. Intente más tarde")
+            callback.onError(message:"Error en el sistema. Intente más tarde", error: nil)
         }
     }
     
@@ -66,13 +66,13 @@ class DetailTransactionManager: IDetailTransactionManager {
                             print(error)
                         }
                     case .failure(let error):
-                        callback.onError(message:"Error en el sistema. Intente más tarde")
+                        callback.onError(message:"Error en el sistema. Intente más tarde",error: responseData.response)
                 }
                 
             }
             
         }else{
-            callback.onError(message:"Error en el sistema. Intente más tarde")
+            callback.onError(message:"Error en el sistema. Intente más tarde", error: nil)
         }
     }
     

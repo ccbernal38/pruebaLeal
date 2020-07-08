@@ -7,28 +7,77 @@
 //
 
 import XCTest
+import Alamofire
 @testable import mobiletest
 
-class mobiletestTests: XCTestCase {
-
+class mobiletestTests: XCTestCase{
+    var expectation : XCTestExpectation?
+    var sideBarManager : SideBarManager?
+    var detailTransactionManager : DetailTransactionManager?
+    
     override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        sideBarManager = SideBarManager()
+        detailTransactionManager = DetailTransactionManager()
     }
-
+    
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        sideBarManager = nil
+        detailTransactionManager = nil
     }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    
+    func testGetTransactions() {
+        sideBarManager?.getTransactions(callback: self)
+        self.expectation = XCTestExpectation(description: "testGetTransactions")
+        wait(for: [self.expectation!], timeout: 5)
     }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    func testGetUser(){
+        detailTransactionManager?.getUser(userid: 1, callback: self)
+        self.expectation = XCTestExpectation(description: "testGetUser")
+        wait(for: [self.expectation!], timeout: 10)
+        
+    }
+    
+    func testGetDetailsTransaction(){
+        detailTransactionManager?.getDetailTransaction(transactionId: 1, callback: self)
+        self.expectation = XCTestExpectation(description: "testGetDetailsTransaction")
+        wait(for: [self.expectation!], timeout: 10)
+    }
+}
+extension mobiletestTests : MainManagerCallback{
+    func onSuccess(transactions: [MainModel.Transaction]) {
+        XCTAssert(transactions.count > 0)
+        self.expectation!.fulfill()
+        
+    }
+    
+    func onError(message: String) {
+        XCTAssert(false)
+    }
+}
+extension mobiletestTests : DetailTransactionManagerCallback{
+    func onError(message: String, error: HTTPURLResponse?) {
+        if error != nil{
+            XCTAssert(error?.statusCode == 404, message)
+            self.expectation!.fulfill()
+        }else{
+            XCTAssert(false, message)
+            self.expectation!.fulfill()
         }
     }
-
+    
+    func onSuccess(response: [String : Any]) {
+        let serviceName = response["serviceName"] as! String
+        if serviceName == "getDetailTransaction"{
+            let detail = response["response"] as! DetailTransactionModel.Detail
+            XCTAssertNotNil(detail)
+            self.expectation!.fulfill()
+            
+        }else if serviceName == "getUser"{
+            let user = response["response"] as! DetailTransactionModel.User
+            XCTAssertNotNil(user)
+            self.expectation!.fulfill()
+            
+        }
+    }
 }
